@@ -1,0 +1,12 @@
+[package]
+name = "cityrade-common"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+hashbrown = "0.16.0"
+noise = "0.9.0"
+rayon = "1.11.0"
+serde = { version = "1.0.225", features = ["derive"] }
+tokio = { version = "1.47.1", features = ["sync"] }
+uuid = { version = "1.18.1", features = ["v4", "v7"] }
