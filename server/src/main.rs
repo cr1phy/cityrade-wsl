@@ -91,6 +91,8 @@ async fn handle_connnections(
                 };
 
                 let content = &buf[..n];
+                info!("[{addr}] Read content: {}", String::from_utf8_lossy(content));
+
                 let (decoded, _): (Event, usize) = decode_from_slice(content, config::standard())?;
                 info!("[{addr}] Process message: {}", decoded);
                 let result = process_message(decoded)?;

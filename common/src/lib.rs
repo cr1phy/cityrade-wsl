@@ -1,3 +1,5 @@
+mod building;
+
 use hashbrown::HashMap;
 use noise::{NoiseFn, Perlin};
 use std::{iter::Iterator, sync::Arc};
