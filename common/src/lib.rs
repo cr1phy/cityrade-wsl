@@ -1,8 +1,10 @@
 mod building;
+#[cfg(test)]
+mod test;
 
 use hashbrown::HashMap;
 use noise::{NoiseFn, Perlin};
-use std::{iter::Iterator, sync::Arc};
+use std::{iter::Iterator, sync::Arc, vec::IntoIter};
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
@@ -49,7 +51,15 @@ impl WorldMap {
     }
 
     fn generate_chunk(&self) -> SizedChunk {
-        let mut c = Chunk::new();
+        let mut c = SizedChunk::new();
+
+        for r in c {
+            for t in r {
+                *t = Tile::UNKNOWN;
+            }
+        }
+
+        c
     }
 }
 
@@ -63,6 +73,15 @@ impl<const W: usize, const H: usize> Chunk<W, H> {
         Self {
             tiles: vec![vec![Tile::UNKNOWN; W]; H],
         }
+    }
+}
+
+impl<const W: usize, const H: usize> IntoIterator for Chunk<W, H> {
+    type Item = Vec<Tile>;
+    type IntoIter = IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.tiles.into_iter()
     }
 }
 
