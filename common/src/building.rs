@@ -5,3 +5,7 @@ pub struct Building {
     name: String,
     level: u8,
 }
+
+macro_rules! declare_building {
+    () => {};
+}
