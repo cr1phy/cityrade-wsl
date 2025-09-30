@@ -11,7 +11,7 @@ pub struct Local;
 pub struct Position<T, S> {
     pub x: T,
     pub y: T,
-    _s: PhantomData<S>,
+    _space: PhantomData<S>,
 }
 
 pub type WorldPos = Position<i64, World>;
@@ -29,21 +29,22 @@ impl WorldPos {
             ChunkPos {
                 x: cx,
                 y: cy,
-                _s: PhantomData,
+                _space: PhantomData,
             },
             LocalPos {
                 x: lx,
                 y: ly,
-                _s: PhantomData,
+                _space: PhantomData,
             },
         )
     }
 }
 
 impl ChunkPos {
-    pub fn join() {}
+    pub fn join<const W: usize, const H: usize>(self, local: LocalPos) {}
 }
 
+/// Смещение
 pub struct Offset {
     pub dx: i64,
     pub dy: i64,
@@ -57,7 +58,7 @@ impl Add<Offset> for WorldPos {
         WorldPos {
             x: self.x + offset.dx,
             y: self.y + offset.dy,
-            _s: PhantomData,
+            _space: PhantomData,
         }
     }
 }
@@ -70,7 +71,7 @@ impl Sub<Offset> for WorldPos {
         WorldPos {
             x: self.x - offset.dx,
             y: self.y - offset.dy,
-            _s: PhantomData,
+            _space: PhantomData,
         }
     }
 }
