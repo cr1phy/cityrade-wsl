@@ -95,7 +95,7 @@ async fn handle_connnections(
 
                 let (decoded, _): (Event, usize) = decode_from_slice(content, config::standard())?;
                 info!("[{addr}] Process message: {}", decoded);
-                let result = process_message(decoded)?;
+                let result = process_message(decoded).await?;
 
                 if let Err(e) = stream_tx.write_all(&result).await {
                     error!("[{addr}] write error: {e}");
@@ -108,6 +108,20 @@ async fn handle_connnections(
     Ok(())
 }
 
-fn process_message(content: Event) -> anyhow::Result<Vec<u8>> {
-    Ok(vec![0u8])
+async fn process_message(content: Event) -> anyhow::Result<Vec<u8>> {
+    let result: Vec<u8> = match content {
+        Event::Connect => {
+            vec![0u8]
+        }
+        Event::AuthLogin { login, password } => {
+            let client = reqwest::Client::new();
+            let response = client
+                .post("http://cityrade.cr1phy.ru/")
+                .json(&["Mame", "Fkdk"])
+                .send()
+                .await?;
+            response.bytes().await?.to_vec()
+        }
+    };
+    Ok(result)
 }

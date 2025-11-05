@@ -5,6 +5,6 @@ use serde::{Deserialize, Serialize};
 pub enum Event {
     #[display("connect")]
     Connect,
-    #[display("auth_login<login={login}, password={password:?}>")]
+    #[display("auth_login<login={login},password={password:?}>")]
     AuthLogin { login: String, password: Vec<u8> },
 }
