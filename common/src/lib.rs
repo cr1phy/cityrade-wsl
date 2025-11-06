@@ -1,5 +1,7 @@
-mod building;
-mod coordinates;
+pub mod building;
+pub mod coordinates;
+pub mod net;
 #[cfg(test)]
 mod test;
-mod world;
+pub mod weather;
+pub mod world;

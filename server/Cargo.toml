@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 anyhow = "1.0.99"
 bincode = { version = "2.0.1", features = ["derive", "serde"] }
+cityrade-common = { version = "0.1.0", path = "../common" }
 derive_more = { version = "2.0.1", features = ["display"] }
 reqwest = { version = "0.12.24", features = ["json"] }
 serde = { version = "1.0.225", features = ["derive"] }

@@ -1,0 +1,9 @@
+[project]
+name = "cityrade-mcp"
+version = "0.1.0"
+description = "MCP Server for `cityrade` game."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastmcp",
+]

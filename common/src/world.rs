@@ -1,21 +1,39 @@
 use hashbrown::HashMap;
 use noise::{NoiseFn, Perlin};
-use std::{iter::Iterator, sync::Arc, vec::IntoIter};
+use rand::{rng, RngCore};
+use rayon::iter::{
+    IndexedParallelIterator, IntoParallelRefIterator, IntoParallelRefMutIterator, ParallelIterator,
+};
+use std::{sync::Arc, vec::IntoIter};
 use tokio::sync::RwLock;
 use uuid::Uuid;
 
+use crate::weather::Weather;
+
 const CHUNK_WIDTH: usize = 64;
 const CHUNK_HEIGHT: usize = 64;
+const SCALE: f64 = 0.02;
 
 type SizedChunk = Chunk<CHUNK_WIDTH, CHUNK_HEIGHT>;
 
 pub struct World {
     id: Uuid,
     title: String,
+    weather: Weather,
     map: WorldMap,
 }
 
 impl World {
+    pub fn new(title: String) -> World {
+        let mut rand = rng();
+        World {
+            id: Uuid::now_v7(),
+            title,
+            map: WorldMap::new(rand.next_u32()),
+            weather: Weather::default(),
+        }
+    }
+
     pub async fn chunk_at(&mut self, coordinates: (i32, i32)) -> Arc<SizedChunk> {
         self.map.get_or_generate_chunk(coordinates).await
     }
@@ -49,11 +67,11 @@ impl WorldMap {
     fn generate_chunk(&self) -> SizedChunk {
         let mut c = SizedChunk::new();
 
-        for r in c {
-            for t in r {
-                *t = Tile::UNKNOWN;
-            }
-        }
+        c.tiles.par_iter_mut().enumerate().for_each(|(dy, row)| {
+            row.iter_mut().enumerate().for_each(|(dx, tile)| {
+                *tile = Tile::from(self.perlin.get([dx as f64 * SCALE, dy as f64 * SCALE]))
+            })
+        });
 
         c
     }
@@ -67,21 +85,24 @@ pub struct Chunk<const W: usize, const H: usize> {
 impl<const W: usize, const H: usize> Chunk<W, H> {
     pub fn new() -> Self {
         Self {
-            tiles: vec![vec![Tile::UNKNOWN; W]; H],
+            tiles: vec![vec![Tile::Unknown; W]; H],
         }
     }
 }
 
-impl<const W: usize, const H: usize> IntoIterator for Chunk<W, H> {
-    type Item = Vec<Tile>;
-    type IntoIter = IntoIter<Self::Item>;
-
-    fn into_iter(self) -> Self::IntoIter {
-        self.tiles.into_iter()
-    }
+#[derive(Debug, Default, PartialEq, Eq, Clone)]
+enum Tile {
+    #[default]
+    Unknown,
+    Water,
+    Grass,
+    Mountain,
 }
 
-#[derive(Debug, PartialEq, Eq, Clone)]
-enum Tile {
-    UNKNOWN,
+impl From<f64> for Tile {
+    fn from(value: f64) -> Self {
+        match value {
+            _ => Self::Unknown,
+        }
+    }
 }

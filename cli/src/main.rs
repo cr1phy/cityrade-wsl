@@ -1,32 +1,22 @@
-use std::io::IoSlice;
-
-use bincode::{config, encode_to_vec};
-use tokio::net::TcpSocket;
-
-#[derive(bincode::Encode)]
-enum Message {
-    Connect,
-    AuthLogin { login: String, password: Vec<u8> },
-}
+use cityrade_common::{net::event::Event, world::World};
+use tokio::net::{TcpSocket, TcpStream};
+use tracing::info;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let addr = "127.0.0.1:7897".parse()?;
-
-    let socket = TcpSocket::new_v4()?;
-    let stream = socket.connect(addr).await?;
-
-    let bytes = encode_to_vec(
-        Message::AuthLogin {
-            login: String::from("name"),
-            password: b"password".as_slice().to_vec(),
-        },
-        config::standard(),
-    )?;
-    println!("{}", String::from_utf8_lossy(&bytes));
+    let addr = "0.0.0.0:7897";
+    let stream = TcpStream::connect(addr).await?;
+    info!("Connected to {}", stream.peer_addr()?);
 
     stream.writable().await?;
-    stream.try_write_vectored(&[IoSlice::new(bytes.as_slice())])?;
+    stream.try_write(
+        Event::AuthLogin {
+            login: "alo".into(),
+            password: "alo".into(),
+        }
+        .to_string()
+        .as_bytes(),
+    )?;
 
     Ok(())
 }

@@ -1,5 +1,3 @@
-mod event;
-
 use std::{net::SocketAddr, time::Duration};
 
 use bincode::{config, decode_from_slice};
@@ -12,7 +10,7 @@ use tokio::{
 use tokio_util::sync::CancellationToken;
 use tracing::{debug, error, info};
 
-use crate::event::Event;
+use cityrade_common::net::event::Event;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -120,7 +118,8 @@ async fn process_message(content: Event) -> anyhow::Result<Vec<u8>> {
                 .json(&["Mame", "Fkdk"])
                 .send()
                 .await?;
-            response.bytes().await?.to_vec()
+            info!("{:#?}", response);
+            vec![0u8]
         }
     };
     Ok(result)
